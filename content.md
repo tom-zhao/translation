@@ -9,4 +9,4 @@
 
 
 NOTE:
-      [README.md](REAME.md)
+      [README.md](README.md)
