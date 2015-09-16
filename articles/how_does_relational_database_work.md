@@ -89,4 +89,5 @@
 
 ##查询管理器
 ![Query manager](media/query_manager.png)
+**本节是数据库的重点所在**。在本节中，一个
 
