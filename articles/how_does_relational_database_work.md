@@ -75,8 +75,8 @@
 <br/>
 <br/>
 当我们连接数据库：
-+  管理器首先验证我们的身份（通过用户名和密码）然后确认我们是否有使用数据库的授权，这些访问授权是你们的DBA设置的。
-+  之后，管理器确认是否有空闲的进程(或者线程)来处理你的这次请求。
++  管理器首先验证我们的身份（通过用户名和密码）接着确认我们是否有使用数据库的授权，这些访问授权是你们的DBA设置的。
++  接着，管理器确认是否有空闲的进程(或者线程)来处理你的这次请求。
 +  管理器也要确认数据库是否过载。
 +  管理器在得到请求的资源（进程/线程）的时候，当等待超时，他就关闭这个连接，并返回一个易读的出错信息。
 +  得到进程/线程之后，就**把这个请求传递给查询管理器**，这次请求处理继续进行。
@@ -89,5 +89,25 @@
 
 ##查询管理器
 ![Query manager](media/query_manager.png)
-**本节是数据库的重点所在**。在本节中，一个
+<br/>
+**这部分是数据库的重点所在**。在本节中，一个写的不怎么好的查询请求将转化成一个**飞快**执行指令代码。接着执行这个指令代码，并返回结果给客户端管理器。这是一个多步骤的操作。
+-  查询语句将被**解析**，看它是否有效。
+-  接着在它之上去除无用的操作语句，并添加与处理语句，重写出来。
+-  为了优化这个查询，提供查询性能，将它转化成一个可执行的数据访问计划。
+-  编译这个计划。
+-  最后，执行它。
+<br/>
+这部分，我不打算就爱那个很多在最后两点上，因为他们不是那么重要。
+<br/>
+<br/>
+
+阅读完这部分之后，你将容易理解我推荐你读的这些材料：
+<br/>
+
+-  The initial research paper (1979) on cost based optimization: ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). This article is only 12 pages and understandable with an average level in computer science.
+
+-  A very good and in-depth presentation on how DB2 9.X optimizes queries ![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
+
+-  A very good presentation on how PostgreSQL optimizes queries ![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”.
+
 
