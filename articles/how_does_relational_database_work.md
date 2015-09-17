@@ -49,7 +49,7 @@
 
 <u>查询管理器:</u>
 +  **查询解析器**: 确认查询是否合法
-+  **查询重写**: 优化查询的预处理
++  **查询重写器**: 优化查询的预处理
 +  **查询优化器**: 优化查询语句
 +  **查询执行器**: 编译执行一个查询
 +  ......
@@ -91,11 +91,11 @@
 ![Query manager](media/query_manager.png)
 <br/>
 **这部分是数据库的重点所在**。在本节中，一个写的不怎么好的查询请求将转化成一个**飞快**执行指令代码。接着执行这个指令代码，并返回结果给客户端管理器。这是一个多步骤的操作。
--  查询语句将被**解析**，看它是否有效。
--  接着在它之上去除无用的操作语句，并添加与处理语句，重写出来。
--  为了优化这个查询，提供查询性能，将它转化成一个可执行的数据访问计划。
--  编译这个计划。
--  最后，执行它。
++  查询语句将被**解析**，看它是否有效。
++  接着在它之上去除无用的操作语句，并添加与处理语句，重写出来。
++  为了优化这个查询，提供查询性能，将它转化成一个可执行的数据访问计划。
++  编译这个计划。
++  最后，执行它。
 <br/>
 这部分，我不打算就爱那个很多在最后两点上，因为他们不是那么重要。
 <br/>
@@ -104,10 +104,72 @@
 阅读完这部分之后，你将容易理解我推荐你读的这些材料：
 <br/>
 
--  The initial research paper (1979) on cost based optimization: ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). This article is only 12 pages and understandable with an average level in computer science.
++  The initial research paper (1979) on cost based optimization: ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). This article is only 12 pages and understandable with an average level in computer science.
 
--  A very good and in-depth presentation on how DB2 9.X optimizes queries ![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
++  A very good and in-depth presentation on how DB2 9.X optimizes queries ![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
 
--  A very good presentation on how PostgreSQL optimizes queries ![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”.
++  A very good presentation on how PostgreSQL optimizes queries ![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”.
+
++  The official ![SQLite documentation](https://www.sqlite.org/optoverview.html) about optimization. It’s “easy” to read because SQLite uses simple rules. Moreover, it’s the only official documentation that really explains how it works.
+
++  A good presentation on how SQL Server 2005 optimizes queries ![here](https://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-components-postattachments/00-08-50-84-93/QPTalk.pdf)
+
++  A white paper about optimization in Oracle 12c ![here](http://www.oracle.com/technetwork/database/bi-datawarehousing/twp-optimizer-with-oracledb-12c-1963236.pdf)
+
+
++  2 theoretical courses on query optimization from the authors of the book “DATABASE SYSTEM CONCEPTS” ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch12.ppt) and ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch13.ppt). A good read that focuses on disk I/O cost but a good level in CS is required.
+
++  另一个 ![理论课](https://www.informatik.hu-berlin.de/de/forschung/gebiete/wbi/teaching/archive/sose05/dbs2/slides/09_joins.pdf) that I find more accessible but that only focuses on join operators and disk I/O.
+
+## 查询解析器
+解析器会将每一条SQL语句检验，查看语法正确与否。如果你在SQL语句中犯了一些错误，解析器将阻止这个查询。比如你将"SELECT...."写成了"SLECT ...."，这次查询就到此为止了。
+<br/>
+说的深一点，他会检查关键字使用前后位置是否正确。比如阻止WHERE 在SELECT之前的查询语句。
+<br/>
+之后，查询语句中的表名，字段名要被解析。解析器就要使用数据库的元数据来验证：
+
++  **表**是否存在
++  表中**字段**是否存在
++  根据字段的类型，对字段的**操作可以**（比如你不能将数字和字符串进行比较，你不能针对数字使用substring()函数）
+
+<br/>
+<br/>
+
+之后确认你是否有**权限**去读/写这些表。再次说明，DBA设置这些读写权限。
+在解析过程中，SQL查询语句将被转换成一个数据库内一种表示(????)(一般是树 译者注：ast)
+如果一切进行顺利，之后这种表示将会传递给查询重写器
+
+## 查询重写器
+在这一步，我们已经得到了这个查询内部的表示。重写器的目的在：
++  预先优化查询
++  去除不必要的操作
++  帮助优化器找到最佳的可行方案
+
+<br/>
+重写器执行一系列广为人知的查询规则。如果这个查询匹配了规则的模型，这个规则就要生效，同时重写这个查询。下列有几个(可选的)规则：
+
++  **视图合并：**如果你在查询仲使用了一个视图，这个视图将会被翻译成视图的SQL代码。
++  **子查询整理**：如果查询仲有子查询非常难以优化，冲洗器可能会去除这个查询的子查询。
+
+例子如下：
+>   SELECT PERSON.*
+>   FROM PERSON
+>   WHERE PERSON.person_key IN
+>   (SELECT MAILS.person_key
+>   FROM MAILS
+>   WHERE MAILS.mail LIKE 'christophe%');
+
+将会改写成：
+>   SELECT PERSON.*
+>   FROM PERSON, MAILS
+>   WHERE PERSON.person_key = MAILS.person_key
+>   and MAILS.mail LIKE 'christophe%';
+
+<br/>
++  **去除非必须操作符**： 比如如果你想让数据唯一，而使用DISTINCT的与此同时还使用一个UNIQUE约束。这样DISTINCT关键字就会被去除。
++  **消除笨重的联合**：
+
+这时候，重写的查询传递给查询优化器。
+好戏开场了。
 
 
