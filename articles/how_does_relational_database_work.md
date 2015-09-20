@@ -281,37 +281,104 @@ K  -> 1024
 但是，如果你要做这个查询
 >SELECT TYPE_PERSON.CATEGORY from PERSON ,TYPE_PERSON
 >WHERE PERSON.AGE = TYPE_PERSON.AGE
-
+<br/>
+PERSON上的索引会用来联合TYPE_PERSON。但是PERSON将不会通过rowid进行访问。因为我们没有获取这个表的信息。
+<br/>
+即使这个查询在某些访问能够工作的很好，这个查询真真正的问题是磁盘IO。如果你需要通过rowid访问太多的行，数据库可能会选择全扫描。
+<br/>
+**其他方法**
+<br/>
+我不能列举所有的访问方法。如果你需要知道的更多，你可以去看![Oracle documentation]()。名字可能和其他数据库不一样，但是背后的机制是一样的。
+<br/>
+**联合操作符**
+<br/>
+我们知道如何获取我们的数据，我们联合他们！
+<br/>
+我列举3个常见的联合操作：合并联合，哈希联合和嵌套循环联合。再次之前，我需要介绍几个新名词：内部关系和外部关系。一个关系（应用在）：
++  一张表
++  一个索引
++  一个中间结果通过明确的操作（比如一个明确联合结果）
+<br/>
+当你联合两个关系，join运算不同的方式管理两种关系。在剩下的文章里边，我假设：
++  外部关系是左侧数据集合
++  内部关系是右侧数据集合
+<br/>
+举例, A join B 就是一个A-B联合查询，A是外部关系，B是内部关系。
+<br/>
+通常，**A join B的成本和B join A的成本是不一样的**。
+<br/>
+**在这部分，我假设外部关系有N个元素，内部关系有M个元素**。记住，一个真正的优化器通过统计知道N和M的值。
+<br/>
+注：N和M都是关系的技术。
+<br/>
+**嵌套循环查询**
+<br/>
+嵌套循环查询是最简单的。
+<br/>
+![Nested Loop Join](media/)
+<br/>
+这是思路
++  找外部关系中的每个元素
++  你将查找内部关系的所有行，确认有没有行是匹配的。
+这是伪代码
+>nested_loop_join(array outer, array inner)
+>  for each row a in outer
+>    for each row b in inner
+>      if (match_join_condition(a,b))
+>        write_result_in_output(a,b)
+>      end if
+>    end for
+>   end for
+<br/>
+这就是双重循环，**时间复杂度是O(N*M)**
+<br/>
+从磁盘IO来说，外部关系的N行数据每一个行，内部循环需要读取M行数据。这个算法需要读N+N*M行数据从磁盘上。但是，如果内部关系足够小，你就能把这个关系放在内存中这样就只有M+N
+次读取数据。通过这个修改，**内部关系必须是最小的那个**，因为这样这个算法，才能有最大的机会在内存操作。
+<br/>
+从时间复杂度来说，它没有任何区别，但是在磁盘IO上，这个是更好的读取方法对于两者。
+<br/>
+当然，内部关系将会使用索引，这样对磁盘IO将会更好。
 <br/>
 <br/>
+因为这个算法是非常简单，这也是对磁盘IO更好的版本，如果内部关系能够完全存放在内存中。这就是思路：
++  不用读取一行一行的读取数据。
++  你批量的读取数据，保持两块数据（两种关系）在内存中。
++  你比较块中的每行数据，记录匹配的行
++  从磁盘读取新块，并比较数据
++  持续执行，直到数据执行完。
+<br/>
+这是可行的算法；
+>// improved version to reduce the disk I/O.
+>nested_loop_join_v2(file outer, file inner)
+>  for each bunch ba in outer
+>  // ba is now in memory
+>    for each bunch bb in inner
+>        // bb is now in memory
+>        for each row a in ba
+>          for each row b in bb
+>            if (match_join_condition(a,b))
+>              write_result_in_output(a,b)
+>            end if
+>          end for
+>       end for
+>    end for
+>   end for
 <br/>
 <br/>
+**这个版本，时间复杂度是一样的，磁盘访问数据降低**：
++  前一个版本，这个算法需要N + N*M 次访问（一次读一行）
++  新版本中，磁盘访问次数成了number_of_bunches_for(outer)+ number_of_ bunches_for(outer)* number_of_ bunches_for(inner)。
++  如果你增加每个块的数量，就减少了磁盘访问次数。
+<br/>
+注：比起前一个算法，一个数据库访问收集越多的数据。如果是顺序访问还不重要。（机械磁盘的真正问题是第一次获取数据的时间。）
 <br/>
 <br/>
+**哈希联合**
 <br/>
+哈希联合要更富在一点，但是在很多情况下，它相对于嵌套循环联合有更好的性能。
+![]()
 <br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+哈希联合的方法为：
 <br/>
 <br/>
 <br/>
