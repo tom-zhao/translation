@@ -347,7 +347,8 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 +  从磁盘读取新块，并比较数据
 +  持续执行，直到数据执行完。
 <br/>
-这是可行的算法；
+这是可行的算法:
+<br/>
 >    // improved version to reduce the disk I/O.
 >    nested_loop_join_v2(file outer, file inner)
 >        for each bunch ba in outer
@@ -499,6 +500,7 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 多个银行账户
 <br/>
 总而言之，这么多的信息，需要一个这样的查询：
+<br/>
 >    SELECT * from PERSON, MOBILES, MAILS,ADRESSES, BANK_ACCOUNTS
 >    WHERE
 >    SPERSON.PERSON_ID = MOBILES.PERSON_ID
