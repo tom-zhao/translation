@@ -321,14 +321,14 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 +  找外部关系中的每个元素
 +  你将查找内部关系的所有行，确认有没有行是匹配的。
 这是伪代码
->nested_loop_join(array outer, array inner)
->  for each row a in outer
->    for each row b in inner
->      if (match_join_condition(a,b))
->        write_result_in_output(a,b)
->      end if
->    end for
->   end for
+>    nested_loop_join(array outer, array inner)
+>        for each row a in outer
+>            for each row b in inner
+>                if (match_join_condition(a,b))
+>                    write_result_in_output(a,b)
+>                end if
+>            end for
+>       end for
 <br/>
 这就是双重循环，**时间复杂度是O(N*M)**
 <br/>
@@ -348,21 +348,21 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 +  持续执行，直到数据执行完。
 <br/>
 这是可行的算法；
->// improved version to reduce the disk I/O.
->nested_loop_join_v2(file outer, file inner)
->  for each bunch ba in outer
->  // ba is now in memory
->    for each bunch bb in inner
->        // bb is now in memory
->        for each row a in ba
->          for each row b in bb
->            if (match_join_condition(a,b))
->              write_result_in_output(a,b)
->            end if
->          end for
->       end for
->    end for
->   end for
+>    // improved version to reduce the disk I/O.
+>    nested_loop_join_v2(file outer, file inner)
+>        for each bunch ba in outer
+>        // ba is now in memory
+>            for each bunch bb in inner
+>            // bb is now in memory
+>                for each row a in ba
+>                    for each row b in bb
+>                        if (match_join_condition(a,b))
+>                            write_result_in_output(a,b)
+>                        end if
+>                    end for
+>                end for
+>            end for
+>        end for
 <br/>
 <br/>
 **这个版本，时间复杂度是一样的，磁盘访问数据降低**：
@@ -444,33 +444,33 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 <br/>
 对于专注于计算机的极客，这是一个处理多个匹配算法（注：这个算法我不能确定是100%正确的）。
 <br/>
->mergeJoin(relation a, relation b)
->  relation output
->  integer a_key:=0;
->  integer b_key:=0;
+>    mergeJoin(relation a, relation b)
+>        relation output
+>        integer a_key:=0;
+>        integer b_key:=0;
 > 
->  while (a[a_key]!=null and b[b_key]!=null)
->    if (a[a_key] < b[b_key]) a_key++; else if (a[a_key] > b[b_key])
->      b_key++;
->    else //Join predicate satisfied
->      write_result_in_output(a[a_key],b[b_key])
->      //We need to be careful when we increase the pointers
->      integer a_key_temp:=a_key;
->      integer b_key_temp:=b_key;
->      if (a[a_key+1] != b[b_key])
->        b_key_temp:= b_key + 1;
->      end if
->      if (b[b_key+1] != a[a_key])
->        a_key_temp:= a_key + 1;
->      end if
->      if (b[b_key+1] == a[a_key] && b[b_key] == a[a_key+1])
->        a_key_temp:= a_key + 1;
->        b_key_temp:= b_key + 1;
->      end if
->      a_key:= a_key_temp;
->      b_key:= b_key_temp;
->    end if
->  end while
+>        while (a[a_key]!=null and b[b_key]!=null)
+>            if (a[a_key] < b[b_key]) a_key++; else if (a[a_key] > b[b_key])
+>                b_key++;
+>            else //Join predicate satisfied
+>                write_result_in_output(a[a_key],b[b_key])
+>                //We need to be careful when we increase the pointers
+>                integer a_key_temp:=a_key;
+>                integer b_key_temp:=b_key;
+>                if (a[a_key+1] != b[b_key])
+>                    b_key_temp:= b_key + 1;
+>                end if
+>                if (b[b_key+1] != a[a_key])
+>                    a_key_temp:= a_key + 1;
+>                end if
+>                if (b[b_key+1] == a[a_key] && b[b_key] == a[a_key+1])
+>                    a_key_temp:= a_key + 1;
+>                    b_key_temp:= b_key + 1;
+>                end if
+>                a_key:= a_key_temp;
+>                b_key:= b_key_temp;
+>            end if
+>        end while
 <br/>
 **哪一个是最好的连接算法**
 <br/>
@@ -499,12 +499,12 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 多个银行账户
 <br/>
 总而言之，这么多的信息，需要一个这样的查询：
->SELECT * from PERSON, MOBILES, MAILS,ADRESSES, BANK_ACCOUNTS
->WHERE
->SPERSON.PERSON_ID = MOBILES.PERSON_ID
->SAND PERSON.PERSON_ID = MAILS.PERSON_ID
->SAND PERSON.PERSON_ID = ADRESSES.PERSON_ID
->SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
+>    SELECT * from PERSON, MOBILES, MAILS,ADRESSES, BANK_ACCOUNTS
+>    WHERE
+>    SPERSON.PERSON_ID = MOBILES.PERSON_ID
+>    SAND PERSON.PERSON_ID = MAILS.PERSON_ID
+>    SAND PERSON.PERSON_ID = ADRESSES.PERSON_ID
+>    SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
 <br/>
 如果你是这个查询优化器，你得找到最好的方法处理这些数据。这里就有一个问题：
 +  我该选择那种连接查询？
