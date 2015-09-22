@@ -152,18 +152,21 @@
 +  **子查询整理**：如果查询仲有子查询非常难以优化，冲洗器可能会去除这个查询的子查询。
 
 例子如下：
->   SELECT PERSON.*
->   FROM PERSON
->   WHERE PERSON.person_key IN
->   (SELECT MAILS.person_key
->   FROM MAILS
->   WHERE MAILS.mail LIKE 'christophe%');
-
+<pre><code>
+SELECT PERSON.*  
+FROM PERSON  
+WHERE PERSON.person_key IN  
+(SELECT MAILS.person_key  
+FROM MAILS  
+WHERE MAILS.mail LIKE 'christophe%');  
+</code></pre>
 将会改写成：
->   SELECT PERSON.*
->   FROM PERSON, MAILS
->   WHERE PERSON.person_key = MAILS.person_key
->   and MAILS.mail LIKE 'christophe%';
+<pre><code>
+SELECT PERSON.*  
+FROM PERSON, MAILS  
+WHERE PERSON.person_key = MAILS.person_key  
+and MAILS.mail LIKE 'christophe%';  
+</code></pre>
 
 <br/>
 +  **去除非必须操作符**： 比如如果你想让数据唯一，而使用DISTINCT的与此同时还使用一个UNIQUE约束。这样DISTINCT关键字就会被去除。
@@ -349,21 +352,25 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 <br/>
 这是可行的算法:
 <br/>
->    // improved version to reduce the disk I/O.
->    nested_loop_join_v2(file outer, file inner)
->        for each bunch ba in outer
->        // ba is now in memory
->            for each bunch bb in inner
->            // bb is now in memory
->                for each row a in ba
->                    for each row b in bb
->                        if (match_join_condition(a,b))
->                            write_result_in_output(a,b)
->                        end if
->                    end for
->                end for
->            end for
->        end for
+
+<pre><code>
+// improved version to reduce the disk I/O.
+nested_loop_join_v2(file outer, file inner)
+    for each bunch ba in outer
+    // ba is now in memory
+        for each bunch bb in inner
+        // bb is now in memory
+            for each row a in ba
+                for each row b in bb
+                    if (match_join_condition(a,b))
+                        write_result_in_output(a,b)
+                    end if
+                end for
+            end for
+        end for
+    end for
+</code></pre>
+
 <br/>
 <br/>
 **这个版本，时间复杂度是一样的，磁盘访问数据降低**：
@@ -444,34 +451,35 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 两个关系都需要排序的情况下时间复杂度加上排序的消耗 **O(N*Log(N) + M*Log(M))**
 <br/>
 对于专注于计算机的极客，这是一个处理多个匹配算法（注：这个算法我不能确定是100%正确的）。
-<br/>
->    mergeJoin(relation a, relation b)
->        relation output
->        integer a_key:=0;
->        integer b_key:=0;
-> 
->        while (a[a_key]!=null and b[b_key]!=null)
->            if (a[a_key] < b[b_key]) a_key++; else if (a[a_key] > b[b_key])
->                b_key++;
->            else //Join predicate satisfied
->                write_result_in_output(a[a_key],b[b_key])
->                //We need to be careful when we increase the pointers
->                integer a_key_temp:=a_key;
->                integer b_key_temp:=b_key;
->                if (a[a_key+1] != b[b_key])
->                    b_key_temp:= b_key + 1;
->                end if
->                if (b[b_key+1] != a[a_key])
->                    a_key_temp:= a_key + 1;
->                end if
->                if (b[b_key+1] == a[a_key] && b[b_key] == a[a_key+1])
->                    a_key_temp:= a_key + 1;
->                    b_key_temp:= b_key + 1;
->                end if
->                a_key:= a_key_temp;
->                b_key:= b_key_temp;
->            end if
->        end while
+<pre><code>
+mergeJoin(relation a, relation b)
+    relation output
+    integer a_key:=0;
+    integer b_key:=0;
+    
+    while (a[a_key]!=null and b[b_key]!=null)
+        if (a[a_key] < b[b_key]) a_key++; else if (a[a_key] > b[b_key])
+            b_key++;
+        else //Join predicate satisfied
+            write_result_in_output(a[a_key],b[b_key])
+            //We need to be careful when we increase the pointers
+            integer a_key_temp:=a_key;
+            integer b_key_temp:=b_key;
+            if (a[a_key+1] != b[b_key])
+                b_key_temp:= b_key + 1;
+            end if
+            if (b[b_key+1] != a[a_key])
+                a_key_temp:= a_key + 1;
+            end if
+            if (b[b_key+1] == a[a_key] && b[b_key] == a[a_key+1])
+                a_key_temp:= a_key + 1;
+                b_key_temp:= b_key + 1;
+            end if
+            a_key:= a_key_temp;
+            b_key:= b_key_temp;
+        end if
+    end while
+</code></pre>
 <br/>
 **哪一个是最好的连接算法**
 <br/>
@@ -501,12 +509,14 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 <br/>
 总而言之，这么多的信息，需要一个这样的查询：
 <br/>
->    SELECT * from PERSON, MOBILES, MAILS,ADRESSES, BANK_ACCOUNTS
->    WHERE
->    SPERSON.PERSON_ID = MOBILES.PERSON_ID
->    SAND PERSON.PERSON_ID = MAILS.PERSON_ID
->    SAND PERSON.PERSON_ID = ADRESSES.PERSON_ID
->    SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
+<pre><code>
+SELECT * from PERSON, MOBILES, MAILS,ADRESSES, BANK_ACCOUNTS
+WHERE
+SPERSON.PERSON_ID = MOBILES.PERSON_ID
+SAND PERSON.PERSON_ID = MAILS.PERSON_ID
+SAND PERSON.PERSON_ID = ADRESSES.PERSON_ID
+SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
+</code></pre>
 <br/>
 如果你是这个查询优化器，你得找到最好的方法处理这些数据。这里就有一个问题：
 +  我该选择那种连接查询？
