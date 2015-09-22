@@ -16,8 +16,7 @@
 *   查询优化技术
 *   事物和内存池管理
 
-
-
+<br/>
 ##总体结构
 
 我们已经理解了数据库使用的基本组件。我们需要回头看看这个大结构图。<br/>
@@ -65,7 +64,7 @@
 +  查询管理器
 +  数据管理器（我也将在这里介绍恢复管理工具）
 
-
+<br/>
 ##客户端管理器
 <br/>
 ![Client manager](media/client_manager.png)
@@ -85,7 +84,6 @@
 +  当遇到失败，他就中断连接，返回给你一个**易读的说明**，并释放使用到的资源。
 
 <br/>
-<br/>
 
 ##查询管理器
 ![Query manager](media/query_manager.png)
@@ -104,23 +102,25 @@
 阅读完这部分之后，你将容易理解我推荐你读的这些材料：
 <br/>
 
-+  The initial research paper (1979) on cost based optimization: ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). This article is only 12 pages and understandable with an average level in computer science.
++  最初的基于成本优化的研究论文： ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). 
+这篇文章只有12页，在计算机科学领域是一片相对易懂的论文。
 
-+  A very good and in-depth presentation on how DB2 9.X optimizes queries ![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
++  针对DB2 9.X查询优化的非常好，非常深深入的简报![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
 
-+  A very good presentation on how PostgreSQL optimizes queries ![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”.
++  针对SPostgreSQL查询优化的非常好的简报![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”。
 
 +  The official ![SQLite documentation](https://www.sqlite.org/optoverview.html) about optimization. It’s “easy” to read because SQLite uses simple rules. Moreover, it’s the only official documentation that really explains how it works.
 
-+  A good presentation on how SQL Server 2005 optimizes queries ![here](https://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-components-postattachments/00-08-50-84-93/QPTalk.pdf)
++  针对SQL Server 2005查询优化的非常好的简报![here](https://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-components-postattachments/00-08-50-84-93/QPTalk.pdf)
 
-+  A white paper about optimization in Oracle 12c ![here](http://www.oracle.com/technetwork/database/bi-datawarehousing/twp-optimizer-with-oracledb-12c-1963236.pdf)
++  Oracle 12c 优化白皮书 ![here](http://www.oracle.com/technetwork/database/bi-datawarehousing/twp-optimizer-with-oracledb-12c-1963236.pdf)
 
 
 +  2 theoretical courses on query optimization from the authors of the book “DATABASE SYSTEM CONCEPTS” ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch12.ppt) and ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch13.ppt). A good read that focuses on disk I/O cost but a good level in CS is required.
 
-+  另一个 ![理论课](https://www.informatik.hu-berlin.de/de/forschung/gebiete/wbi/teaching/archive/sose05/dbs2/slides/09_joins.pdf) that I find more accessible but that only focuses on join operators and disk I/O.
++  另一个非常易于理解的，关注于联合操作符，磁盘IO的 ![理论课](https://www.informatik.hu-berlin.de/de/forschung/gebiete/wbi/teaching/archive/sose05/dbs2/slides/09_joins.pdf)。
 
+<br/>
 ## 查询解析器
 解析器会将每一条SQL语句检验，查看语法正确与否。如果你在SQL语句中犯了一些错误，解析器将阻止这个查询。比如你将"SELECT...."写成了"SLECT ...."，这次查询就到此为止了。
 <br/>
@@ -132,13 +132,11 @@
 +  表中**字段**是否存在
 +  根据字段的类型，对字段的**操作可以**（比如你不能将数字和字符串进行比较，你不能针对数字使用substring()函数）
 
-<br/>
-<br/>
 
 之后确认你是否有**权限**去读/写这些表。再次说明，DBA设置这些读写权限。
 在解析过程中，SQL查询语句将被转换成一个数据库内一种表示(????)(一般是树 译者注：ast)
 如果一切进行顺利，之后这种表示将会传递给查询重写器
-
+<br/>
 ## 查询重写器
 在这一步，我们已经得到了这个查询内部的表示。重写器的目的在：
 +  预先优化查询
@@ -225,7 +223,6 @@ K  -> 1024
 <br/>
 <br/>
 注：当然每种数据库都有他自己更高级的统计。如果你想知道更多请好好阅读这些数据库的文档。值得一提的是，我以前尝试去了解这些统计是如何用的，我发现了这个最好的官方文档 ![one from PostgreSQL](http://www.postgresql.org/docs/9.4/static/row-estimation-examples.html)
-<br/>
 <br/>
 ## 查询优化器
 <br/>
@@ -520,33 +517,87 @@ SAND PERSON.PERSON_ID = ADRESSES.PERSON_ID
 SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
 </code></pre>
 <br/>
-如果你是这个查询优化器，你得找到最好的方法处理这些数据。这里就有一个问题：
+如果一个查询优化器，我得找到最好的方法处理这些数据。这里就有一个问题：
 +  我该选择那种连接查询？
 <br/>
-我有三种备选的连接查询（哈希，归并，嵌套循环），因为他们能够使用
+我有三种备选的连接查询（哈希，归并，嵌套循环），因为他们能够使用0，1，2个索引（先不提有不同的索引）。
+<br/>
++  我们选择表来做连接查询的顺序？
+<br/>
+举个例子，下图展示了4个表上的3次连接操作的可行的执行计划：
+<br/>
+![Join Ordering Problem](media/join_ordering_problem.png)
+<br/>
+我可能会这么做：
++  1）我用了暴力破解的方法
+<br/>
+通过数据库的统计，我可以**计算每一个执行计划的成本**之后，选择那个最优解。但是有太多的可行方法了。就给定的连接查询的顺序而言，每一次连接有三种选择，哈希连接，归并连接，嵌套连接。所以对于确定顺序的连接就有3的4次方的方法。连接的顺序是一个**二叉树置换问题**，它有(2*4)!/(4+1)!种可行方法。在这个问题上，我们有34*(2*4)!/(4+1)!种方法。
+<br/>
+更直观的数字是，27216个方法。如果我把使用了0，1，2个索引的可能性增加到这个问题上，这个数字了21000种。看到这个简单查询，傻眼不？
++  2）把我搞哭了，不干这个事儿了。
+<br/>
+这个提议很吸引人。但是你得不到结果，我还指望它挣钱呢。
++  3）我就找几个执行计划试试，用其中最好性能的那个。  
+我不是超人，我可算不出来每一个执行计划的成本。于是，我就**从所有可能的执行计划中随意选了一些**，计算他们的成本，给你其中性能最好的哪个。
++  4）我使用了**更聪明的规则减少了可行的执行计划**。
+<br/>
+这里就有2个规则：
+<br/>
+逻辑：我可以删除没有用的可能，但是(??)。
+比如：使用嵌套循环连接的内部关系一定是最小的数据集。
+<br/>
+我可以接受不是最优解。使用更加有约束性的条件，减少更多的可行方法。比如：如果一个关系很小，使用嵌套循环查询，而不是归并、哈希查询。
 <br/>
 <br/>
+在这个简单例子中，我得到了那么多的可行方法。但是**一个现实的查询还有其他的关系操作符**，像 OUTER JOIN, CROSS JOIN, GROUP BY, ORDER BY, PROJECTION, UNION, INTERSECT, DISTINCT …这意味着更多更多的可行方法。
+<br/>
+这个数据库是怎么做的呢？
 <br/>
 <br/>
+##动态规划，贪婪算法和启发式算法
 <br/>
+我已经提到一个数据库要尝试很多种方法。真正的优化就是在一定时间内找到一个好的解。
 <br/>
+**大多数情况下，优化器找到的是一个次优解，找不到最优解**。
 <br/>
+小一点的查询，暴力破解的方式也是可行的。但是有一种方法避免了很多的重复计算。这个算法就是动态规划。
 <br/>
+**动态规划**
 <br/>
+动态规划的着眼点是有不同的执行计划的有些步奏屎一样的。如果你看这些下边的这些执行计划：
 <br/>
+![overlapping trees](media/overlapping_trees.png)
 <br/>
+他们使用了相同的子树(A JOIN B)，所以每一个执行计划都会计算这个操作。在这儿，我们计算一次，保存这个结果，等到重新计算它的时候，就可以直接用这个结果。更加正式的说，我们遇到一些有部分重复计算的问题，为了避免额外的计算，我们用内存保存重复计算的值。
 <br/>
+对于玩计算机哥们，我之前看到了一个算法，在这个![课上](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch13.ppt)。我不准备在这里解释这个算法，如果你已经了解了动态规划或者你很擅长算法。
+<pre><code>
+procedure findbestplan(S)
+   if (bestplan[S].cost infinite)
+       return bestplan[S]
+    // else bestplan[S] has not been computed earlier, compute it now
+   if (S contains only 1 relation)
+         set bestplan[S].plan and bestplan[S].cost based on the best way
+         of accessing S  /* Using selections on S and indices on S */
+   else for each non-empty subset S1 of S such that S1 != S
+   P1= findbestplan(S1)
+   P2= findbestplan(S - S1)
+   A = best algorithm for joining results of P1 and P2
+   cost = P1.cost + P2.cost + cost of A
+   if cost < bestplan[S].cost
+       bestplan[S].cost = cost
+       bestplan[S].plan = “execute P1.plan; execute P2.plan;
+                 join results of P1 and P2 using A”
+    return bestplan[S]
+</code></pre>
 <br/>
+对于更大的查询，动态规划就需要更多的规则去减少无用解：
 <br/>
++  比如我们在分析一个执行计划（）我们就从3^n减少到了 N* 2^n
 <br/>
+![left-deep-tree](media/left-deep-tree.png)
 <br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
++  
 <br/>
 <br/>
 <br/>
@@ -930,4 +981,6 @@ SAND PERSON.PERSON_ID = BANK_ACCOUNTS.PERSON_ID
 <br/>
 <br/>
 <br/>
+注：
+data set 翻译为数据集，指的是table。
 
