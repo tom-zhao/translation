@@ -324,14 +324,16 @@ PERSON上的索引会用来连接TYPE_PERSON。但是PERSON将不会通过rowid�
 +  找外部关系中的每个元素
 +  你将查找内部关系的所有行，确认有没有行是匹配的。
 这是伪代码
->    nested_loop_join(array outer, array inner)
->        for each row a in outer
->            for each row b in inner
->                if (match_join_condition(a,b))
->                    write_result_in_output(a,b)
->                end if
->            end for
->       end for
+<pre><code>
+nested_loop_join(array outer, array inner)
+    for each row a in outer
+        for each row b in inner
+            if (match_join_condition(a,b))
+                write_result_in_output(a,b)
+            end if
+        end for
+   end for
+</code></pre>
 <br/>
 这就是双重循环，**时间复杂度是O(N*M)**
 <br/>
