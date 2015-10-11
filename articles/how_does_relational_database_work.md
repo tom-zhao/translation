@@ -108,18 +108,18 @@
 +  最初的基于成本优化的研究论文： ![Access Path Selection in a Relational Database Management System](http://www.cs.berkeley.edu/~brewer/cs262/3-selinger79.pdf). 
 这篇文章只有12页，在计算机科学领域是一片相对易懂的论文。
 
-+  针对DB2 9.X查询优化的非常好，非常深深入的简报![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
++  针对DB2 9.X查询优化的非常好，非常深深入的文档![here](http://infolab.stanford.edu/~hyunjung/cs346/db2-talk.pdf)
 
-+  针对SPostgreSQL查询优化的非常好的简报![here](http://momjian.us/main/writings/pgsql/optimizer.pdf). It’s the most accessible document since it’s more a presentation on “let’s see what query plans PostgreSQL gives in these situations“ than a “let’s see the algorithms used by PostgreSQL”。
++  针对PostgreSQL查询优化的非常好的文档![here](http://momjian.us/main/writings/pgsql/optimizer.pdf)。这是非常容易理解的文档，它更展示的是“PostgreSQL在不同场景下，使用相应的查询计划”，而不是“PostgreSQL使用的算法”。
 
-+  The official ![SQLite documentation](https://www.sqlite.org/optoverview.html) about optimization. It’s “easy” to read because SQLite uses simple rules. Moreover, it’s the only official documentation that really explains how it works.
++  SQLite关于优化的官方![SQLite documentation](https://www.sqlite.org/optoverview.html) 文档。非常容易阅读，因为SQLite使用的非常简单的规则。此外，这是为唯一一个真正解释如何使用优化规则的文档。
 
-+  针对SQL Server 2005查询优化的非常好的简报![here](https://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-components-postattachments/00-08-50-84-93/QPTalk.pdf)
++  针对SQL Server 2005查询优化的非常好的文档![here](https://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-components-postattachments/00-08-50-84-93/QPTalk.pdf)
 
 +  Oracle 12c 优化白皮书 ![here](http://www.oracle.com/technetwork/database/bi-datawarehousing/twp-optimizer-with-oracledb-12c-1963236.pdf)
 
 
-+  2 theoretical courses on query optimization from the authors of the book “DATABASE SYSTEM CONCEPTS” ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch12.ppt) and ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch13.ppt). A good read that focuses on disk I/O cost but a good level in CS is required.
++  “DATABASE SYSTEM CONCEPTS”作者写的两个关于查询优化的2个理论课程![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch12.ppt) and ![here](codex.cs.yale.edu/avi/db-book/db6/slide-dir/PPT-dir/ch13.ppt). 关注于磁盘I/O一个很好的读物，但是需要一定的计算机科学功底。
 
 +  另一个非常易于理解的，关注于联合操作符，磁盘IO的 ![理论课](https://www.informatik.hu-berlin.de/de/forschung/gebiete/wbi/teaching/archive/sose05/dbs2/slides/09_joins.pdf)。
 
